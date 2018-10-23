@@ -24,25 +24,14 @@ subplot(1,4,1); imshow(imageDataBinary); title("Original BinaryJPEG");
 subplot(1,4,2); imshow(finalimg); title("After erosion and dilation operations");
 
 area = getfield(regionprops(finalimg,'BoundingBox'),'BoundingBox');
-smallerimageglob = finalimg(round(area(2)):round(area(2)+area(4)),round(area(1)):round(area(1)+area(3)));
 smallerimage = imageDataBinary(round(area(2)):round(area(2)+area(4)),round(area(1)):round(area(1)+area(3)));
-subplot(1,4,3);imshow(smallerimage); title("Bounding box area");
-
-for m = 1:length(smallerimage(:,1))
-    for n = 1:length(smallerimage(1,:))
-        if(smallerimageglob(m,n) == 0)
-            smallerimage(m,n) = 0;
-        end
-    end
+subplot(1,4,3);imshow(smallerimage); title("Pixels in bounding box of previous area");
+justboundary = zeros(5327,9185);
+for row = 1:length(boundary)
+    justboundary(boundary(row,1),boundary(row,2)) = 1;
 end
-
-subplot(1,4,4); imshow(smallerimage); title("Pixels outside scaffold removed");
-% justboundary = zeros(5327,9185);
-% for row = 1:length(boundary)
-%     justboundary(boundary(row,1),boundary(row,2)) = 1;
-% end
-% justboundary_thickened = imdilate(justboundary,[1, 1 ,1;1,1, 1;1,1,1]);
-% subplot(1,4,3); imshow(justboundary_thickened); title("Boundary");
+justboundary_thickened = imdilate(justboundary,[1, 1 ,1;1,1, 1;1,1,1]);
+subplot(1,4,3); imshow(justboundary_thickened); title("Boundary");
 
 % C = imfuse(finalimg,imageDataBinary,'blend');
 % subplot(1,4,3); imshow(C); title("Images overlayed");
