@@ -1,12 +1,44 @@
 clc; clear all; close all;
 %% Section for loading in and visualizing individual images
-%Load in the image
-jpgFileName = '..\Raw Data\week 2 tif\Ch1Stitched_Z031.tif';
-img_scaffold = imread(jpgFileName);
-img_cells = imread('..\Raw Data\week 2 tif\Ch3Stitched_Z031.tif');
+%Load in the image - analysing week 2 files now
+%img_scaffold = imread('D:\ARTUR\Fib_Week2\Ch1_Stitched_Sections\Stitched_Z030.tif');
+
+
+
+img_cells = imread('D:\ARTUR\Fib_Week2\Ch2_Stitched_Sections\Stitched_Z030.tif');
+picsize = 300;
+img = 1;
+for ro = 1:floor(size(img_cells,1)/picsize)
+    for co = 1:floor(size(img_cells,2)/picsize)
+        props = regionprops(img_cells(picsize*(ro-1)+1 : picsize*ro,picsize*(co-1)+1:picsize*co));
+        if(max([props.Area]) > 50)
+            smallerpics(:,:,img) = img_cells(picsize*(ro-1)+1 : picsize*ro,picsize*(co-1)+1:picsize*co);
+            img = img + 1;
+        end
+    end
+end
+
+for img = 1:10
+    subplot(2,5,img);
+    imshow(smallerpics(:,:,200+img));
+end
+%img_nucleus = imread('D:\ARTUR\Fib_Week2\Ch3_Stitched_Sections\Stitched_Z030.tif');
+imshow(img_cells)
+%imgbin_scaffold = img_scaffold > 0;
+%imgbin_cells = img_cells > 0;
+%imgbin_nucleus = img_nucleus > 0;
+%overlay_im = cat(3, imgbin_scaffold, imgbin_cells, imgbin_nucleus);
+%C = imfuse(imgbin_scaffold,imgbin_nucleus);
+%imshow(C);
 %imagesc(image_scaffold); colormap('gray');
 
+%D = -bwdist(~imgbin_cells);
+%D(~imgbin_cells) = -Inf;
+%I2 = imhmin(D,3);
+%L = watershed(I2);
+%imshow(label2rgb(L,'jet','w'));  title('Watershed');
 
+%%
 %Convert image to binary image
 imgbin_scaffold = img_scaffold > 0;
 imshow(imgbin_scaffold); title("Binary Scaffold Channel");

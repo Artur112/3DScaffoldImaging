@@ -1,12 +1,37 @@
-%% Section for loading in and visualizing individual images
 clc; clear all; close all;
-%Load in the image
-jpgFileName = '..\Raw Data\week 2 tif\Ch1Stitched_Z031.tif';
-img_scaffold = imread(jpgFileName);
-img_cells = imread('..\Raw Data\week 2 tif\Ch3Stitched_Z031.tif');
+%% Section for loading in and visualizing individual images
+%Load in the image - analysing week 2 files now
+%img_scaffold = imread('D:\ARTUR\Fib_Week2\Ch1_Stitched_Sections\Stitched_Z030.tif');
+
+
+
+img_cells = imread('D:\ARTUR\Fib_Week2\Ch2_Stitched_Sections\Stitched_Z030.tif');
+picsize = 300;
+img = 1;
+smallerpics = zeros(300,300,3933);
+for ro = 1:floor(size(img_cells,1)/300)
+    for c0 = 1:floor(size(img_cells,2)/300)
+            smallerpics(:,:,img) = img_cells(300*(ro-1)+1 : 300*ro,300*(co-1):300*co);
+            img = img + 1;
+    end
+end
+%img_nucleus = imread('D:\ARTUR\Fib_Week2\Ch3_Stitched_Sections\Stitched_Z030.tif');
+imshow(img_cells)
+%imgbin_scaffold = img_scaffold > 0;
+%imgbin_cells = img_cells > 0;
+%imgbin_nucleus = img_nucleus > 0;
+%overlay_im = cat(3, imgbin_scaffold, imgbin_cells, imgbin_nucleus);
+%C = imfuse(imgbin_scaffold,imgbin_nucleus);
+%imshow(C);
 %imagesc(image_scaffold); colormap('gray');
 
+%D = -bwdist(~imgbin_cells);
+%D(~imgbin_cells) = -Inf;
+%I2 = imhmin(D,3);
+%L = watershed(I2);
+%imshow(label2rgb(L,'jet','w'));  title('Watershed');
 
+%%
 %Convert image to binary image
 imgbin_scaffold = img_scaffold > 0;
 imshow(imgbin_scaffold); title("Binary Scaffold Channel");
@@ -14,7 +39,7 @@ imgbin_cells = img_cells > 0;
 figure; imshow(imgbin_cells); title("Binary Cell Channel");
 %imagesc(image_scaffold_Binary); colormap('gray');
 %clear img_scaffold;
-clear img_cells;
+%clear img_cells;
 
 % %Split image in half since the JPEG scans are of two scaffolds
 % image_scaffold_Binary1 = image_scaffold_Binary(:,1:round(length(image_scaffold_Binary)/2));
@@ -49,7 +74,7 @@ title('Original Scaffold with cells overlayed');
 % imshow(C2);
 % title('Modified Scaffold with cells overlayed');
 
-%% Section for experimenting with 
+%% Section for experimenting with segmentation methods
 
 area = getfield(regionprops(finalimg,'BoundingBox'),'BoundingBox');
 smallerimageglob = finalimg(round(area(2)):round(area(2)+area(4)),round(area(1)):round(area(1)+area(3)));
