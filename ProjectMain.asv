@@ -8,12 +8,19 @@ clc; clear all; close all;
 img_cells = imread('D:\ARTUR\Fib_Week2\Ch2_Stitched_Sections\Stitched_Z030.tif');
 picsize = 300;
 img = 1;
-smallerpics = zeros(300,300,3933);
-for ro = 1:floor(size(img_cells,1)/300)
-    for c0 = 1:floor(size(img_cells,2)/300)
-            smallerpics(:,:,img) = img_cells(300*(ro-1)+1 : 300*ro,300*(co-1):300*co);
+for ro = 1:floor(size(img_cells,1)/picsize)
+    for co = 1:floor(size(img_cells,2)/picsize)
+        props = regionprops(img_cells(picsize*(ro-1)+1 : picsize*ro,picsize*(co-1)+1:picsize*co));
+        if(max([props.Area]) > 50)
+            smallerpics(:,:,img) = img_cells(picsize*(ro-1)+1 : picsize*ro,picsize*(co-1)+1:picsize*co);
             img = img + 1;
+        end
     end
+end
+
+for img = 1:10
+    subplot(2,5,img);
+    imshow(smallerpics(:,:,200+img));
 end
 %img_nucleus = imread('D:\ARTUR\Fib_Week2\Ch3_Stitched_Sections\Stitched_Z030.tif');
 imshow(img_cells)
@@ -165,14 +172,28 @@ hist(cellareas',10);
 figure;
 imshow(image_cells_Binary2); title('Bin');
 
-figure;
-D = -bwdist(~image_cells_Binary2);
-D(~image_cells_Binary2) = -Inf;
-I2 = imhmin(D,3);
-L = watershed(I2);
-imshow(label2rgb(L,'jet','w'));  title('Watershed');
+%%
+%figure;
+javaaddpath('C:\Program Files\MATLAB\R2018b\java\mij.jar');
+javaaddpath('C:\Program Files\MATLAB\R2018b\java\ij.jar');
+addpath('C:\Users\artur\Desktop\4th Year\Project\Fiji.app\scripts');
+Miji(false);
+address = 'D:\ARTUR\subset\';
+a = dir([address '\*.tif']);
+numpics = numel(a);
+file = fopen('C:\Users\artur\Desktop\4th Year\Project\Project-Code\filename.txt','w');
+for img = 1:numpics
+    fprintf(file,address+"slice1_img" + num2str(img) + ".tif\n");
+    fprintf(file,"picture" + num2str(img));
+end
+fclose(file);
 
-regionprops(L);
+for img = 1:numpics
+    name = "slice1_img" + num2str(img);
+    MIJ.run('MorphSegmentation'); %,java.lang.String("PERSEAUK")
+    MIJ.run('Close All');
+end
+
 
 %% Section for performing analysis on all images on all images at once.
 %Reading in all the image files 

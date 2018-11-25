@@ -172,14 +172,25 @@ hist(cellareas',10);
 figure;
 imshow(image_cells_Binary2); title('Bin');
 
-figure;
-D = -bwdist(~image_cells_Binary2);
-D(~image_cells_Binary2) = -Inf;
-I2 = imhmin(D,3);
-L = watershed(I2);
-imshow(label2rgb(L,'jet','w'));  title('Watershed');
+%% Section for running ImageJ through matlab for segmentation of images
+%figure;
+javaaddpath('C:\Program Files\MATLAB\R2018b\java\mij.jar');
+javaaddpath('C:\Program Files\MATLAB\R2018b\java\ij.jar');
+addpath('C:\Users\artur\Desktop\4th Year\Project\Fiji.app\scripts');
+Miji(false);
+address = 'D:/ARTUR/subset/';
+a = dir([address '\*.tif']);
+numpics = numel(a);
+file = fopen('C:\Users\artur\Desktop\4th Year\Project\Project-Code\filename.txt','w');
+for img = 1:numpics
+    fprintf(file,strcat(convertCharsToStrings(address),"slice1_img",num2str(img),".tif\n"));
+    fprintf(file,"picture" + num2str(img) + "\n");
+end
+fclose(file);
+MIJ.run('MorphSegmentation');
+MIJ.run('Close All');
 
-regionprops(L);
+
 
 %% Section for performing analysis on all images on all images at once.
 %Reading in all the image files 

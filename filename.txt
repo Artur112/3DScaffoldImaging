@@ -1,0 +1,12 @@
+D:/ARTUR/subset/slice1_img1.tif
+picture1
+D:/ARTUR/subset/slice1_img2.tif
+picture2
+D:/ARTUR/subset/slice1_img3.tif
+picture3
+D:/ARTUR/subset/slice1_img4.tif
+picture4
+D:/ARTUR/subset/slice1_img5.tif
+picture5
+D:/ARTUR/subset/slice1_img6.tif
+picture6
