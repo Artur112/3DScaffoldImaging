@@ -3,8 +3,6 @@ clc; clear all; close all;
 %Load in the image - analysing week 2 files now
 %img_scaffold = imread('D:\ARTUR\Fib_Week2\Ch1_Stitched_Sections\Stitched_Z030.tif');
 
-
-
 img_cells = imread('D:\ARTUR\Fib_Week2\Ch2_Stitched_Sections\Stitched_Z030.tif');
 picsize = 300;
 img = 1;
@@ -89,7 +87,6 @@ imshow(img_cells)
 % subplot(2,5,6);imshow(smallerimageglob); title("Bounding box area");
 % subplot(2,5,7); imshow(smallerimage); title("Same area in original pic");
 % 
-% 
 % for m = 1:length(smallerimage(:,1))
 %     for n = 1:length(smallerimage(1,:))
 %         if(smallerimageglob(m,n) == 0)
@@ -119,7 +116,6 @@ imshow(img_cells)
 % 
 % image_cellsHalf = image_cells(:,round(length(image_scaffold_Binary)/2)+1 : length(image_scaffold_Binary));
 % image_cellsSmall = image_cellsHalf(round(area(2)):round(area(2)+area(4)),round(area(1)):round(area(1)+area(3)));
-% 
 % 
 % for m = 1:length(smallerimage(:,1))
 %     for n = 1:length(smallerimage(1,:))
@@ -168,17 +164,11 @@ imshow(img_cells)
 % 
 % hist(cellareas',10);
 % 
-% 
 % figure;
 % imshow(image_cells_Binary2); title('Bin');
 
-%% Section for running ImageJ through matlab for segmentation of images
-%smallimgsdir = smallerimages(300); %Make Images smallerfirst;
-
-% javaaddpath('C:\Program Files\MATLAB\R2018b\java\mij.jar');
-% javaaddpath('C:\Program Files\MATLAB\R2018b\java\ij.jar');
-% addpath('C:\Users\artur\Desktop\4th Year\Project\Fiji.app\scripts');
-% Miji(false);
+%% Running ImageJ MorphoLibJ plugin for segmentation of images
+smallimgsdir = smallerimages(300); %Make Images smallerfirst;
 
 a = dir([smallimgsdir '\*.tif']);
 file = fopen('C:\Users\artur\Desktop\4thYear\Project\Project-Code\filename.txt','w');
@@ -188,14 +178,11 @@ for n = a'
     fprintf(file, n.name(1:end-4)+"_segm.tif" + "\n");
 end
 fclose(file);
-%%
-%ImageJ --headless -macro 'C:/Users/Artur/Desktop/4th Year/Project/Fiji.app/plugins/MorphSegmentation.ijm';
-%%MIJ.run('-headless MorphSegmentation');
+
 command = 'vdesk on:2 run:"C:\Users\artur\Desktop\4thYear\Project\Fiji.app\ImageJ-win64.exe" -macro C:/Users/Artur/Desktop/4thYear/Project/Fiji.app/plugins/MorphSegmentation.ijm';
 system(command);
-MIJ.run('Close All');
 
-%% Neural Network 
+%% Train Convolutional Neural Network 
 dataDir = fullfile(toolboxdir('vision'),'visiondata');
 imDir = 'D:\ARTUR\Week3SmallerPics-Nuclei\'; %Directory where raw images are
 pxDir = 'D:\ARTUR\Week3Final-Nuclei\'; %Directory where pixel labeled images are
@@ -212,7 +199,6 @@ splitratio = 0.75;
 
 train_pximds = partitionByIndex(pximds,1:floor(splitratio*length(imds.Files)));
 test_pximds = partitionByIndex(pximds,ceil(splitratio*length(imds.Files)):length(imds.Files));
-
 
 numFilters = 64;
 filterSize = 3;
@@ -260,78 +246,11 @@ imDir = 'C:\users\artur\Desktop\temp\';
 img = imageDatastore(imDir);
 pxdsResults = semanticseg(img,net,"WriteLocation",'C:\users\artur\Desktop\temp\','NamePrefix', "4");
 
-%%
-imagesc(imread('C:\users\Artur\Desktop\shitraw.tif')); colormap(gray);
-title('Section of Clumped Cells');
-axis off;
+%% Metric Calculations
+address = uigetdir('temp', 'Select folder where segmented full images are');
+a = dir([address '\*.tif']);
 
-%% Section for performing analysis on all images on all images at once.
-%Reading in all the image files 
-for k = 1:157
-    if(k<10)
-        jpgFileName = strcat('..\Raw Data\Ch2_Stitched_Sections_JPEG\Ch2_Stitched_Sections_JPEG\Stitched_Z00', num2str(k), '.jpg');
-        if exist(jpgFileName, 'file')
-            imageData(:,:,k) = imread(jpgFileName);
-        else
-            fprintf('File %s does not exist.\n', jpgFileName);
-        end
-    elseif(k>99)
-        jpgFileName = strcat('..\Raw Data\Ch2_Stitched_Sections_JPEG\Ch2_Stitched_Sections_JPEG\Stitched_Z', num2str(k), '.jpg');
-        if exist(jpgFileName, 'file')
-            imageData(:,:,k) = imread(jpgFileName);
-        else
-            fprintf('File %s does not exist.\n', jpgFileName);
-        end
-    else
-        jpgFileName = strcat('..\Raw Data\Ch2_Stitched_Sections_JPEG\Ch2_Stitched_Sections_JPEG\Stitched_Z0', num2str(k), '.jpg');
-        if exist(jpgFileName, 'file')
-            imageData(:,:,k) = imread(jpgFileName);
-        else
-            fprintf('File %s does not exist.\n', jpgFileName);
-        end
-    end
-end
-
-%Converting all the image files to binary
-imageDataBinary = imageData > 0;
-
-%Keeping only second half of each image - must preallocate first for speed
-imageDataBinary1 = false(5327,4593,157);
-imageDataBinary2 = false(5327,4592,157);
-for pic = 1:length(imageDataBinary(1,1,:))
-    imageDataBinary1(:,:,pic) = imageDataBinary(:,1:round(length(imageDataBinary)/2),pic);
-    imageDataBinary2(:,:,pic) = imageDataBinary(:,round(length(imageDataBinary)/2)+1 : length(imageDataBinary),pic);      
-end
-
-for pic = 1:length(imageDataBinary(1,1,:))
-  imageDataBinary1small(:,:,pic) = imageDataBinary1(round(area(2)):round(area(2)+area(4)),round(area(1)):round(area(1)+area(3)),pic);
-  imageDataBinary2small(:,:,pic) = imageDataBinary2(round(area(2)):round(area(2)+area(4)),round(area(1)):round(area(1)+area(3)),pic);
-end  
-  
-for m = 1:length(smallerimage(:,1))
-    for n = 1:length(smallerimage(1,:))
-        if(smallerimageglob(m,n) == 0)
-            imageDataBinary2small(m,n,:) = 0;
-        end
-    end
-end
-
-
-% image1CC = bwconncomp(image1);
-% image1CC_centroids = regionprops(image1CC,'Centroid');
-
-% cellpoints = double(zeros(68344,3));
-cellcounter = 1;
-for pic = 1:157
-    tempregionprops = regionprops(bwconncomp(imageDataBinary2small(:,:,pic)));
-    for n = 1:length(tempregionprops)
-        temp = getfield(tempregionprops(n),'Centroid');
-        cellpoints(cellcounter,1) = temp(1);
-        cellpoints(cellcounter,2) = temp(2);
-        cellpoints(cellcounter,3) = pic;
-        cellcounter = cellcounter + 1;
-    end
-end
-
-figure;
-plot3(cellpoints(:,1),cellpoints(:,2),cellpoints(:,3),'.'); 
+for file = a(1)'
+    cc = bwconncomp(imread(address + "\" + file.name));
+    celldata.Area = cell2mat(struct2cell(regionprops(cc,'Centroid'))');
+end   
