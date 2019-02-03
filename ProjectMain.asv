@@ -256,9 +256,10 @@ for file = a(1)'
     celldata.Centroid = cell2mat(struct2cell(regionprops(cc,'Centroid'))');
     celldata.Area = cell2mat(struct2cell(regionprops(cc,'Area'))');
     celldata.BBox = cell2mat(struct2cell(regionprops(cc,'BoundingBox'))');
-    MinAx = cell2mat(struct2cell(regionprops(cc,'MinorAxisLength'))');
-    MajAx = cell2mat(struct2cell(regionprops(cc,'MajorAxisLength'))');
-    celldata.WHRatio = MajAx / MinAx;
+    celldata.MinAx = cell2mat(struct2cell(regionprops(cc,'MinorAxisLength'))');
+    celldata.MajAx = cell2mat(struct2cell(regionprops(cc,'MajorAxisLength'))');
+    celldata.Orien = cell2mat(struct2cell(regionprops(cc,'Orientation'))');
+    celldata.WHrat = celldata.MajAx / celldata
     toc    
 end
     
