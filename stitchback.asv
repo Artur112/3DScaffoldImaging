@@ -1,15 +1,15 @@
 function stitchback(numrows, numcols, smallerimgsize)
     address = uigetdir('temp', 'Select folder where smaller images are');
     %address = 'D:/Artur/kaka';
-    a = dir([address '\*.png']);
+    a = dir([address '\*.tif']);
     
     address2 = uigetdir('temp', 'Select folder where to store bigger images');
     %address2 = 'D:/Artur/kaka2';
     total = numel(a);
     slice = 1;
-    lastslicenr = str2double(a(total).name(6:8));
+    lastslicenr = a(total).name(6:8);
     image = zeros(numrows,numcols);
-    disp("Stitching slice 1 of " + num2str(lastslicenr));
+    disp("Stitching slice 1");
     iter = 1;
     for file = a'
         name = file.name;

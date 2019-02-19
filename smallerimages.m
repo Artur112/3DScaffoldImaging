@@ -9,7 +9,7 @@ function storedlocation = smallerimages(picsize)
     tic;    
     %Function to separate every tif image into smaller images, for only
     %those that contain cells in them. The data is then saved.
-    for slice = 1:numberofslices
+    for slice = 1:1%numberofslices
         img = 1;
         
         if(slice<10)

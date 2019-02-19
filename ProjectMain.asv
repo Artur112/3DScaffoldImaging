@@ -269,30 +269,30 @@ toc/60
 
 %%
 %Percentage of scaffold occupied by cells - first version
-address_scaff = uigetdir('temp', 'Select folder where scaffold images are');
-address_cells = uigetdir('temp', 'Select folder where cell images are');
-a = dir([address_scaff '\*.tif']);
-a2 = dir([address_cells '\*.tif']);
+addressscaff = uigetdir('temp', 'Select folder where scaffold images are');
+addressscell = uigetdir('temp', 'Select folder where cell images are');
+a = dir([address '\*.tif']);
+a2 = dir(
+tic;
+b = 1;
 total = numel(a);
-pic = 1
-for pic = 1:total
-    imgscaff = imread(address_scaff + "/" + a(pic).name);
-    imgcells = imread(address_cells + "/" + a2(pic).name);
-    
-    totalscaff = sum(imgscaff>0,'all');
-    imgscaffbin = imgscaff > 0;
-    imgcellsbin = imgcells > 0;
-    sumcells = 0;
-    for m = 1:size(imgcells,1)
-        for n = 1:size(imgcells,2)
-            if(imgcellsbin(m,n) && imgscaffbin(m,n))
-                sumcells = sumcells + 1;
-            end
+
+%%
+totalscaff = sum(imgscaff>0,'all');
+imgscaffbin = imgscaff > 0;
+imgcellsbin = imgcells > 0;
+sumcells = 0;
+tic
+for m = 1:size(imgcells,1)
+    for n = 1:size(imgcells,2)
+        if(imgcellsbin(m,n) && imgscaffbin(m,n))
+            sumcells = sumcells + 1;
         end
     end
-    percentage(pic) = sumcells / totalscaff * 100;
-    pic = pic + 1
 end
+toc/60
+percentage = sumcells / totalscaff * 100;
+disp("Percentage of scaffold occupied by cells: " + num2str(percentage) + "%");
 %% Data Visualization
 %Input to this section is celldata and later scaffold data
 
