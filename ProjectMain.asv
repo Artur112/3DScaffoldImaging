@@ -1,304 +1,118 @@
+%4th Year Biomedical Engineering Final Year Project, written by Artur
+%Jurgenson 2018-2019.
+
 clc; clear all; close all;
-%% Section for loading in and visualizing individual images
-%Load in the image - analysing week 2 files now
-%img_scaffold = imread('D:\ARTUR\Fib_Week2\Ch1_Stitched_Sections\Stitched_Z030.tif');
 
-img_cells = imread('D:\ARTUR\Fib_Week2\Ch2_Stitched_Sections\Stitched_Z030.tif');
-picsize = 300;
-img = 1;
-for ro = 1:floor(size(img_cells,1)/picsize)
-    for co = 1:floor(size(img_cells,2)/picsize)
-        props = regionprops(img_cells(picsize*(ro-1)+1 : picsize*ro,picsize*(co-1)+1:picsize*co));
-        if(max([props.Area]) > 50)
-            smallerpics(:,:,img) = img_cells(picsize*(ro-1)+1 : picsize*ro,picsize*(co-1)+1:picsize*co);
-            img = img + 1;
-        end
-    end
-end
 
-for img = 1:10
-    subplot(2,5,img);
-    imshow(smallerpics(:,:,200+img));
-end
-%img_nucleus = imread('D:\ARTUR\Fib_Week2\Ch3_Stitched_Sections\Stitched_Z030.tif');
-imshow(img_cells)
-%imgbin_scaffold = img_scaffold > 0;
-%imgbin_cells = img_cells > 0;
-%imgbin_nucleus = img_nucleus > 0;
-%overlay_im = cat(3, imgbin_scaffold, imgbin_cells, imgbin_nucleus);
-%C = imfuse(imgbin_scaffold,imgbin_nucleus);
-%imshow(C);
-%imagesc(image_scaffold); colormap('gray');
-
-%D = -bwdist(~imgbin_cells);
-%D(~imgbin_cells) = -Inf;
-%I2 = imhmin(D,3);
-%L = watershed(I2);
-%imshow(label2rgb(L,'jet','w'));  title('Watershed');
-
-%%
-%Convert image to binary image
-% imgbin_scaffold = img_scaffold > 0;
-% imshow(imgbin_scaffold); title("Binary Scaffold Channel");
-% imgbin_cells = img_cells > 0;
-% figure; imshow(imgbin_cells); title("Binary Cell Channel");
-%imagesc(image_scaffold_Binary); colormap('gray');
-%clear img_scaffold;
-%clear img_cells;
-
-% %Split image in half since the JPEG scans are of two scaffolds
-% image_scaffold_Binary1 = image_scaffold_Binary(:,1:round(length(image_scaffold_Binary)/2));
-% image_scaffold_Binary2 = image_scaffold_Binary(:,round(length(image_scaffold_Binary)/2)+1 : length(image_scaffold_Binary));
-
-%Gonna analyze the right side for now
-%% Section for performing dilation and erosion for only considering scaffold area for segmentation
-%Structuring elements
-% se = strel('square',8);
-% se2 = strel('square',30);
-% se3 = strel('square',1300);
-% 
-% %Eroding to get rid of small things around
-% erodeimg1 = imerode(image_scaffold_Binary,se);
-% dilateimg1 = imdilate(erodeimg1,se2);
-% erodeimg2 = imerode(dilateimg1,se3);
-%finalimg = imerode(dilateimg2,se3);
-
-% subplot(1,5,1); imshow(image_scaffold_Binary); title("Original Binary Image");
-% subplot(1,5,2); imshow(erodeimg1); title("Eroded with 15x15 square");
-% subplot(1,5,3); imshow(dilateimg1); title("Dilated with 7000 square");
-% subplot(1,5,4); imshow(erodeimg2); title("Erode with 500 square");
-%subplot(1,5,5); imshow(finalimg); title("Eroded with 300x300 square");
-
-%subplot(1,4,1);
-% C = imfuse(imgbin_scaffold,imgbin_cells);
-% imshow(C);
-% title('Original Scaffold with cells overlayed');
-
-% figure;
-% C2 = imfuse(img_scaffold+50,imgbin_cells);
-% imshow(C2);
-% title('Modified Scaffold with cells overlayed');
-
-% %% Section for experimenting with segmentation methods
-% 
-% area = getfield(regionprops(finalimg,'BoundingBox'),'BoundingBox');
-% smallerimageglob = finalimg(round(area(2)):round(area(2)+area(4)),round(area(1)):round(area(1)+area(3)));
-% smallerimage = image_scaffold_Binary2(round(area(2)):round(area(2)+area(4)),round(area(1)):round(area(1)+area(3)));
-% subplot(2,5,6);imshow(smallerimageglob); title("Bounding box area");
-% subplot(2,5,7); imshow(smallerimage); title("Same area in original pic");
-% 
-% for m = 1:length(smallerimage(:,1))
-%     for n = 1:length(smallerimage(1,:))
-%         if(smallerimageglob(m,n) == 0)
-%             smallerimage(m,n) = 0;
-%         end
-%     end
-% end
-% 
-% subplot(2,5,8); imshow(smallerimage); title("Pixels values outside scaffold removed");
-% % justboundary = zeros(5327,9185);
-% % for row = 1:length(boundary)
-% %     justboundary(boundary(row,1),boundary(row,2)) = 1;
-% % end
-% % justboundary_thickened = imdilate(justboundary,[1, 1 ,1;1,1, 1;1,1,1]);
-% % subplot(1,4,3); imshow(justboundary_thickened); title("Boundary");
-% % 
-% % C = imfuse(finalimg,imageDataBinary,'blend');
-% % subplot(1,4,3); imshow(C); title("Images overlayed");
-% % B = bwboundaries(finalimg);
-% % boundary = B{1};
-% 
-% jpgFileName = '..\Raw Data\Ch2_Stitched_Sections_JPEG\Ch2_Stitched_Sections_JPEG\Stitched_Z001.jpg';
-% image_cells = imread(jpgFileName);
-% 
-% % figure;
-% % imshow(image_cells);
-% 
-% image_cellsHalf = image_cells(:,round(length(image_scaffold_Binary)/2)+1 : length(image_scaffold_Binary));
-% image_cellsSmall = image_cellsHalf(round(area(2)):round(area(2)+area(4)),round(area(1)):round(area(1)+area(3)));
-% 
-% for m = 1:length(smallerimage(:,1))
-%     for n = 1:length(smallerimage(1,:))
-%         if(smallerimageglob(m,n) == 0)
-%             image_cellsSmall(m,n) = 0;
-%         end
-%     end
-% end
-% % 
-% % for m = 1:length(smallerimage(:,1))
-% %     for n = 1:length(smallerimage(1,:))
-% %         if(image_cellsSmall(m,n) ~= 0)
-% %             image_cellsSmall(m,n) = image_cellsSmall(m,n) + 50;
-% %         end
-% %     end
-% % end
-% 
-% figure;
-% subplot(1,2,1);
-% imshow(image_cellsSmall); colormap('gray'); title("Cells in the scaffold area only Original");
-% %Convert image to binary image
-% image_cells_Binary = image_cells > 0;
-% 
-% %Split image in half since the JPE scans are of two scaffolds
-% image_cells_Binary1 = image_cells_Binary(:,1:round(length(image_cells_Binary)/2));
-% image_cells_Binary2 = image_cells_Binary(:,round(length(image_cells_Binary)/2)+1 : length(image_cells_Binary));
-% image_cells_Binary2 = image_cells_Binary2(round(area(2)):round(area(2)+area(4)),round(area(1)):round(area(1)+area(3)));
-% for m = 1:length(smallerimage(:,1))
-%     for n = 1:length(smallerimage(1,:))
-%         if(smallerimageglob(m,n) == 0)
-%             image_cells_Binary2(m,n) = 0;
-%         end
-%     end
-% end
-% 
-% subplot(1,2,2);
-% imshow(image_cells_Binary2); title("Cells in the scaffold area only Binary");
-% regioncells = regionprops(bwconncomp(image_cells_Binary2));
-% figure;
-% imshow(label2rgb(bwlabel(image_cells_Binary2))); title('Connected components');
-% cellareas = zeros(length(regioncells),1);
-% for n = 1: length(regioncells)
-%     cellareas(n) = getfield(regioncells(n),'Area');
-% end
-% figure;
-% 
-% hist(cellareas',10);
-% 
-% figure;
-% imshow(image_cells_Binary2); title('Bin');
-
-%% Running ImageJ MorphoLibJ plugin for segmentation of images
-smallimgsdir = smallerimages(300); %Make Images smallerfirst;
-
-a = dir([smallimgsdir '\*.tif']);
-file = fopen('C:\Users\artur\Desktop\4thYear\Project\Project-Code\filename.txt','w');
-
-for n = a'
-    fprintf(file,"D:/ARTUR/Week3SmallerPics-Nuclei/"+ n.name+"\n");
-    fprintf(file, n.name(1:end-4)+"_segm.tif" + "\n");
-end
-fclose(file);
-
-command = 'vdesk on:2 run:"C:\Users\artur\Desktop\4thYear\Project\Fiji.app\ImageJ-win64.exe" -macro C:/Users/Artur/Desktop/4thYear/Project/Fiji.app/plugins/MorphSegmentation.ijm';
-system(command);
-
-%% Train Segmentation Network 
-dataDir = fullfile(toolboxdir('vision'),'visiondata');
-imDir = 'D:\ARTUR\Week3SmallerPics-Nuclei\'; %Directory where raw images are
-pxDir = 'D:\ARTUR\Week3Final-Nuclei\'; %Directory where pixel labeled images are
-
-imds = imageDatastore(imDir); %Imagedatastore for all images
-
-classNames = ["background", "cell"];
-pxlLabels = [0, 1];
-pxds = pixelLabelDatastore(pxDir,classNames,pxlLabels); %Pixel labeldatastore for all images
-
-pximds = pixelLabelImageDatastore(imds,pxds);
-
-splitratio = 0.75;
-
-train_pximds = partitionByIndex(pximds,1:floor(splitratio*length(imds.Files)));
-test_pximds = partitionByIndex(pximds,ceil(splitratio*length(imds.Files)):length(imds.Files));
-
-numFilters = 64;
-filterSize = 3;
-numClasses = 2;
-layers = [
-    imageInputLayer([300 300 1])
-    convolution2dLayer(filterSize,numFilters,'Padding',1)
-    reluLayer()
-    maxPooling2dLayer(2,'Stride',2)
-    convolution2dLayer(filterSize,numFilters,'Padding',1)
-    reluLayer()
-    transposedConv2dLayer(4,numFilters,'Stride',2,'Cropping',1);
-    convolution2dLayer(1,numClasses);
-    softmaxLayer()
-    pixelClassificationLayer()
-    ];
-
-opts = trainingOptions('sgdm', ...
-    'InitialLearnRate',1e-3, ...
-    'MaxEpochs',100, ...
-    'MiniBatchSize',15, ...
-    'Plots', 'training-progress');
-
-net = trainNetwork(train_pximds,layers,opts);
-%%
-
-imgs_test = imageDatastore(test_pximds.Images);
-classNames = ["background", "cell"];
-pxlLabels = [0, 1];
-pxdsTruth = pixelLabelDatastore(test_pximds.Images,classNames,pxlLabels);
-
-for n = 1:length(imgs_test.Files)
-    imagetotest = partition(imgs_test,'Files',n);
-    imagetruth = partition(pxdsTruth,'Files',n);
-%net = load('net.mat');
-%net = SeriesNetwork(net.layers);
-    name = cell2mat(imagetotest.Files);
-    pxdsResults = semanticseg(imagetotest,net,"WriteLocation",'D:\Artur\NetworkOutput','NamePrefix', name(end-28:end-4));
-   % metrics = evaluateSemanticSegmentation(pxdsResults,imagetruth);
-    display(n);
-end
-
-%% Run Neural Network on one image at once
-imDir = 'C:\users\artur\Desktop\temp\';
-img = imageDatastore(imDir);
-pxdsResults = semanticseg(img,net,"WriteLocation",'C:\users\artur\Desktop\temp\','NamePrefix', "4");
 
 %% Metric Calculations
-%address = uigetdir('temp', 'Select folder where segmented full images are');
+address = uigetdir('temp', 'Select folder where segmented full images are');
 a = dir([address '\*.tif']);
 tic;
 b = 1;
 total = numel(a);
 
-for file = a'   
+for file = a(1) 
     image = imread(address + "\" + file.name);
     cc = bwconncomp(image);
-    celldata.Centroid{1,b} = cell2mat(struct2cell(regionprops(cc,'Centroid'))');
-    celldata.Area{1,b} = cell2mat(struct2cell(regionprops(cc,'Area'))');
-    celldata.BBox{1,b} = cell2mat(struct2cell(regionprops(cc,'BoundingBox'))');
+    celldata.Centroid = cell2mat(struct2cell(regionprops(cc,'Centroid'))'); %Centroids of all cells
+    celldata.Area = cell2mat(struct2cell(regionprops(cc,'Area'))'); %Areas of all cells
+    celldata.BBox = cell2mat(struct2cell(regionprops(cc,'BoundingBox'))'); %Bounding boxes of all cells
     MinAx = cell2mat(struct2cell(regionprops(cc,'MinorAxisLength'))');
     MajAx = cell2mat(struct2cell(regionprops(cc,'MajorAxisLength'))');
-    celldata.WHRatio{1,b} = MajAx / MinAx;
+    celldata.WHRatio = MajAx / MinAx; %Width to height ratios of cells
     display(num2str(b/total*100) + "% done");
+    all_cells{b} = celldata;
     b = b + 1;
 end
 toc/60
 
 %%
-%Percentage of scaffold occupied by cells - first version
-addressscaff = uigetdir('temp', 'Select folder where scaffold images are');
-addressscell = uigetdir('temp', 'Select folder where cell images are');
-a = dir([address '\*.tif']);
-a2 = dir(
-tic;
-b = 1;
+%---------------Percentage of scaffold occupied by cells - first version
+address_scaff = 'D:\ARTUR\RawData\Fib_Week2\Ch1_Stitched_Sections';% uigetdir('temp', 'Select folder where scaffold images are');
+address_cells = 'D:\ARTUR\Nuclei-Cell\5_Stitched\Week2_Nuclei\GroundTruth';% uigetdir('temp', 'Select folder where cell images are');
+a = dir([address_scaff '\*.tif']);
+a2 = dir([address_cells '\*.tif']);
 total = numel(a);
-
-%%
-totalscaff = sum(imgscaff>0,'all');
-imgscaffbin = imgscaff > 0;
-imgcellsbin = imgcells > 0;
-sumcells = 0;
-tic
-for m = 1:size(imgcells,1)
-    for n = 1:size(imgcells,2)
-        if(imgcellsbin(m,n) && imgscaffbin(m,n))
-            sumcells = sumcells + 1;
+pic = 1;
+for pic = 1:5   
+    imgscaff = imread(address_scaff + "/" + a(pic).name);
+    imgcells = imread(address_cells + "/" + a2(pic).name);
+    
+    totalscaff = sum(imgscaff>0,'all');
+    imgscaffbin = imgscaff > 0;
+    imgcellsbin = imgcells > 0;
+    sumcells = 0;
+    for m = 1:size(imgcells,1)
+        for n = 1:size(imgcells,2)
+            if(imgcellsbin(m,n) && imgscaffbin(m,n))
+                sumcells = sumcells + 1;
+            end
         end
     end
+    percentage(pic) = sumcells / totalscaff * 100
+    pic = pic + 1
 end
-toc/60
-percentage = sumcells / totalscaff * 100;
-disp("Percentage of scaffold occupied by cells: " + num2str(percentage) + "%");
-%% Data Visualization
-%Input to this section is celldata and later scaffold data
 
+%% ------------ Average Scaffold Pore Size
 
+image = imread("D:/Artur/RawData/Fib_Week3/Ch1_Stitched_Sections/Stitched_Z001.tif");
+image = image > 0;
+se = strel('square',10);
+image = imdilate(imerode(image,se),se);
 
-
+props = regionprops(image,'Area');
+image2 = zeros(size(image,1),size(image,2));
+m = 700;
+finished = false;
+while(~finished)
+    props = cell2mat(struct2cell(regionprops(image2,'Area')));
+    se = strel('square',m);
+    image2 = imerode(imdilate(image,se),se); %Closing operation
+    subplot(1,2,1);
+    imshow(image);
+    subplot(1,2,2);
+    imshow(image2);
+    title("m = " + num2str(m) + ", numobjects = " + num2str(length(props)));
+    m = m+20;
+    if(sum(props>200000) == length(props))
+        finished = true;
+    end
+    pause(0.1);  
+end
+%%
+    se = strel('square',500);
+    image2 = imerode(imdilate(image,se),se); 
+%     image3 = regionprops(image2,'FilledImage');
+%     image3 = image3.FilledImage;
+%     figure;
+%     subplot(1,2,1);
+%     imshow(image2);
+%     subplot(1,2,2);
+%     imshow(image3);
+%     image4 = edge(image3);
+%     figure;
+%     i
+%     imshow(image4);
+    props = regionprops(image2,'Area');
+    tic
+    C = imfuse(image,image2,'ColorChannels',[1 2 0]);
+    toc/60
+    imshow(C);
+    title("numobjects = " + num2str(length(props)));
     
-    
-     
+    %%
+    areascaffold = 0;
+    for m = 1:size(image,1)
+        for n = 1:size(image,2)
+            if(image(m,n) && image2(m,n))
+                areascaffold = areascaffold + 1;
+            end
+        end
+    end
+    props = regionprops(image2,'Area');
+    pore_size = areascaffold
+                
+                
+                
+                

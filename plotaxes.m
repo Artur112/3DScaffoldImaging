@@ -1,6 +1,6 @@
 figure;
 numpics = 15;
-
+%celldata.BBox = celldata2.BBox{1,1}
 for n = 1:numpics
     if(numpics<6)
         subplot(1,5,n);
