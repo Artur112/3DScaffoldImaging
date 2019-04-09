@@ -1,81 +1,81 @@
 % clear all; clc;
-% 
-% disp('Please select where the data to segment is');
-% data_addr = uigetdir('temp', 'Select folder where data is');
-% a = dir([data_addr '\*.tif']);
-% numberofslices = numel(a);
-% 
-% picsize = 300; %what size images to be split into
-% store_addr = "C:\users\Artur\Desktop\temp"; %where to store the images
-% 
-% if ~exist(store_addr, 'dir')
-%     mkdir(store_addr);
-%     mkdir(store_addr + "\1_Smallerpics");
-%     mkdir(store_addr + "\2_Segmented");
-%     mkdir(store_addr + "\3_Final");
-% end
-% 
-% %% Split images into smaller images (for Neural Network training)
-% disp('Splitting data into smaller images');
-% tic;    
-% for slice = 1:1%numberofslices
-%     img = 1;
-%     if(slice<10)
-%         img_cells = imread(data_addr + "\Stitched_Z00" + num2str(slice)+".tif");
-%     elseif(slice<100)
-%         img_cells = imread(data_addr + "\Stitched_Z0" + num2str(slice)+".tif");
-%     else
-%         img_cells = imread(data_addr + "\Stitched_Z" + num2str(slice)+".tif");
-%     end
-% 
-%     for ro = 1:floor(size(img_cells,1)/picsize)
-%         for co = 1:floor(size(img_cells,2)/picsize)
-%             props = regionprops(img_cells(picsize*(ro-1)+1 : picsize*ro,picsize*(co-1)+1:picsize*co));
-%             if(max([props.Area]) > 50)
-% 
-%                 if(img<10)
-%                     picnr = "000" + num2str(img);
-%                 elseif(img<100)
-%                     picnr = "00" + num2str(img);
-%                 elseif(img<1000)
-%                     picnr = "0" + num2str(img);
-%                 else
-%                     picnr = num2str(img);
-%                 end
-% 
-%                 if(slice<10)
-%                     slicenr = "00" + num2str(slice);
-%                 elseif(slice<100)
-%                     slicenr = "0" + num2str(slice);
-%                 else
-%                     slicenr = num2str(slice);
-%                 end
-% 
-%                 if(ro<10)
-%                     ronr = "00" + num2str(ro);
-%                 elseif(ro<100)
-%                     ronr = "0" + num2str(ro);
-%                 else
-%                     ronr = num2str(ro);
-%                 end
-% 
-%                 if(co<10)
-%                     conr = "00" + num2str(co);
-%                 elseif(co<100)
-%                     conr = "0" + num2str(co);
-%                 else
-%                     conr = numstr(co);
-%                 end
-% 
-%                 imwrite(img_cells(picsize*(ro-1)+1 : picsize*ro,picsize*(co-1)+1:picsize*co),...
-%                 store_addr + "\1_Smallerpics\slice"+slicenr+"pic"+picnr+"ro"+ronr+"co"+conr+".tif",'tif');
-%                 display("Image "+ num2str(img)+" Slice " + num2str(slice)+ " Saved");
-%                 img = img + 1;
-%             end
-%         end
-%     end
-%     display(num2str(slice) + " / " + num2str(numberofslices) + " slices done");
-% end
+
+disp('Please select where the data to segment is');
+data_addr = uigetdir('temp', 'Select folder where data is');
+a = dir([data_addr '\*.tif']);
+numberofslices = numel(a);
+
+picsize = 300; %what size images to be split into
+store_addr = "C:\users\Artur\Desktop\temp"; %where to store the images
+
+if ~exist(store_addr, 'dir')
+    mkdir(store_addr);
+    mkdir(store_addr + "\1_Smallerpics");
+    mkdir(store_addr + "\2_Segmented");
+    mkdir(store_addr + "\3_Final");
+end
+
+%% Split images into smaller images (for Neural Network training)
+disp('Splitting data into smaller images');
+tic;    
+for slice = 1:1%numberofslices
+    img = 1;
+    if(slice<10)
+        img_cells = imread(data_addr + "\Stitched_Z00" + num2str(slice)+".tif");
+    elseif(slice<100)
+        img_cells = imread(data_addr + "\Stitched_Z0" + num2str(slice)+".tif");
+    else
+        img_cells = imread(data_addr + "\Stitched_Z" + num2str(slice)+".tif");
+    end
+
+    for ro = 1:floor(size(img_cells,1)/picsize)
+        for co = 1:floor(size(img_cells,2)/picsize)
+            props = regionprops(img_cells(picsize*(ro-1)+1 : picsize*ro,picsize*(co-1)+1:picsize*co));
+            if(max([props.Area]) > 50)
+
+                if(img<10)
+                    picnr = "000" + num2str(img);
+                elseif(img<100)
+                    picnr = "00" + num2str(img);
+                elseif(img<1000)
+                    picnr = "0" + num2str(img);
+                else
+                    picnr = num2str(img);
+                end
+
+                if(slice<10)
+                    slicenr = "00" + num2str(slice);
+                elseif(slice<100)
+                    slicenr = "0" + num2str(slice);
+                else
+                    slicenr = num2str(slice);
+                end
+
+                if(ro<10)
+                    ronr = "00" + num2str(ro);
+                elseif(ro<100)
+                    ronr = "0" + num2str(ro);
+                else
+                    ronr = num2str(ro);
+                end
+
+                if(co<10)
+                    conr = "00" + num2str(co);
+                elseif(co<100)
+                    conr = "0" + num2str(co);
+                else
+                    conr = numstr(co);
+                end
+
+                imwrite(img_cells(picsize*(ro-1)+1 : picsize*ro,picsize*(co-1)+1:picsize*co),...
+                store_addr + "\1_Smallerpics\slice"+slicenr+"pic"+picnr+"ro"+ronr+"co"+conr+".tif",'tif');
+                display("Image "+ num2str(img)+" Slice " + num2str(slice)+ " Saved");
+                img = img + 1;
+            end
+        end
+    end
+    display(num2str(slice) + " / " + num2str(numberofslices) + " slices done");
+end
 
 %% Running ImageJ MorphoLibJ plugin to segment the smaller images
 disp('Segmenting the smaller images with MorpholibJ');
