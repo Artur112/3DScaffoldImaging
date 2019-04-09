@@ -35,27 +35,48 @@ for file = a'
                 shifts = [0,0,0,0];
                 if(ro > 1 && ro < 300 && co >1 && co <300)
                     while(any(section(:,1)))
-                        shifts(1) = shifts(1) + 1;
                         section = img(1+picsize*(ro-1) : picsize*ro , 1+picsize*(co-1) - 5*shifts(1): picsize*co - 5*shifts(1));
+                        imagesc(section);
+                        pause;
+                        shifts(1) = shifts(1) + 1;
                     end
                     while(any(section(:,picsize)))
+                        section = img(1+picsize*(ro-1) : picsize*ro , 1+picsize*(co-1) + 5*shift: picsize*co + 5*shift);
+                        imagesc(section);
+                        pause;
                         shifts(2) = shifts(2) + 1;
-                        section = img(1+picsize*(ro-1) : picsize*ro , 1+picsize*(co-1) + 5*shifts(2): picsize*co + 5*shifts(2));
                     end
                     while(any(section(1,:)))
-                        shifts(3) = shifts(3) + 1;
-                        section = img(1+picsize*(ro-1) - 5*shifts(3) : picsize*ro - 5*shifts(3), 1+picsize*(co-1): picsize*co);
+                        section = img(1+picsize*(ro-1) - 5*shift : picsize*ro - 5*shift, 1+picsize*(co-1): picsize*co);
+                        imagesc(section);
+                        pause;
+                        shift = shift + 1;
+                        shifts(3) = 1;
                     end
                     while(any(section(picsize,:)))
-                        shifts(4) = shifts(4) + 1;
-                        section = img(1+picsize*(ro-1) + 5*shifts(4): picsize*ro + 5*shifts(4) , 1+picsize*(co-1): picsize*co);
+                        section = img(1+picsize*(ro-1) + 5*shift: picsize*ro + 5*shift , 1+picsize*(co-1): picsize*co);
+                        imagesc(section);
+                        pause;
+                        shift = shift + 1;
+                        shifts(4) = 1;
                     end
                 end
                 C = semanticseg(section,net);
                 if(~any(shifts))
                     img_segm(1+picsize*(ro-1) : picsize*ro , 1+picsize*(co-1) : picsize*co) = double(C) - 1;
                 else
-                    img_segm(1+picsize*(ro-1) + 5*(shifts(4)-shifts(3)): picsize*ro + 5*(shifts(4)-shifts(3)), 1+picsize*(co-1) +5*(shifts(2)-shifts(1)) : picsize*co +5*(shifts(2)-shifts(1))) = double(C) - 1;
+                   % if(length(find(shifts == 1) == 1)
+                        switch find(shifts == 1)
+                            case 1
+                                img_segm(1+picsize*(ro-1) : picsize*ro , 1+picsize*(co-1) - 5*shift: picsize*co - 5*shift) = double(C) - 1;
+                            case 2
+                                img_segm(1+picsize*(ro-1) : picsize*ro , 1+picsize*(co-1) + 5*shift: picsize*co + 5*shift) = double(C) - 1;
+                            case 3
+                                img_segm(1+picsize*(ro-1) - 5*shift: picsize*ro - 5*shift, 1+picsize*(co-1) : picsize*co) = double(C) - 1;
+                            case 4
+                                img_segm(1+picsize*(ro-1) + 5*shift: picsize*ro + 5*shift, 1+picsize*(co-1) : picsize*co) = double(C) - 1;
+                        end
+                  %  end
                 end
             end
         end
