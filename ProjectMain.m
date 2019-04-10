@@ -5,28 +5,18 @@ clc; clear all; close all;
 
 %% Get address of folder where data is stored
 disp('Please select folder where the data is (ie the Chx_Stitched_Sections folders)');
-address = uigetdir('temp', 'Select folder where data is');
-a = dir([address '\*.tif']);
+data_address = uigetdir('temp', 'Select folder where data is');
 
 %% Segment the images with Neural Network
-net = load('network1.mat');
+net = load('network1.mat'); %Load neural Network
 net = net.net;
-
-%imDir = 'C:\users\artur\Desktop\temp\';
-% img = imread('C:\users\Artur\Desktop\slice001pic0006ro006co044.tif');
-% C = semanticseg(img,net);
-% B = labeloverlay(img,C);
-% imshow(img);
-%%
-k = double(C) - 1;
-r = imfuse(img,k,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
-imshow(img);
-%%
-picsize = 300;
-slice = 1;
-for file = a'
-    tic;
-    img = imread(address + "\" + file.name);
+picsize = 300; 
+files = dir([convertStringsToChars(strcat(data_address,"\Ch2_Stitched_Sections")) '\*.tif']);
+slice = 1;  
+tic;
+for file = files'
+    display("Segmenting Slice " + num2str(slice));
+    img = imread(data_address + "\Ch2_Stitched_Sections\" + file.name);
     img_segm = zeros(size(img,1),size(img,2));
     for ro = 1:floor(size(img,1)/picsize)
         for co = 1:floor(size(img,2)/picsize)
@@ -60,58 +50,44 @@ for file = a'
             end
         end
     end
-    imwrite(img_segm,'C:\users\Artur\Desktop\temp2\segmented.png');
-    toc/60
+    imwrite(img_segm,"C:\users\Artur\Desktop\temp\Slice_" + num2str(slice) + ".png");
+    slice = slice + 1;
 end
+display("Segmenting all images took " + num2str(toc/60) + " minutes");
 
 %% Calculate Metrics
-address = uigetdir('temp', 'Select folder where segmented full images are');
-a = dir([address '\*.tif']);
+segm_cell_imgs = dir(['C:\users\artur\Desktop\temp\Segmented' '\*.png']);
+scaffold_imgs = dir(['D:\ARTUR\RawData\Fib_Week2\Ch1_Stitched_Sections' '\*.tif']);
+numslices = numel(segm_cell_imgs);
+metric_data = cell(numslices); %Pre allocating for speed
 tic;
-b = 1;
-total = numel(a);
-
-for file = a(1) 
-    image = imread(address + "\" + file.name);
-    cc = bwconncomp(image);
-    celldata.Centroid = cell2mat(struct2cell(regionprops(cc,'Centroid'))'); %Centroids of all cells
-    celldata.Area = cell2mat(struct2cell(regionprops(cc,'Area'))'); %Areas of all cells
-    celldata.BBox = cell2mat(struct2cell(regionprops(cc,'BoundingBox'))'); %Bounding boxes of all cells
+for slice = 1:numslices
+    display("Analyzing Slice " + num2str(slice));
+    
+    % Calculate metrics of the cells
+    cell_image = imread(segm_cell_imgs(1).folder + "\" + segm_cell_imgs(slice).name);
+    cell_image = im2double(cell_image);
+    cc = bwconncomp(cell_image);
+    slicedata.Centroids = cell2mat(struct2cell(regionprops(cc,'Centroid'))'); %Centroids of all cells
+    slicedata.Areas = cell2mat(struct2cell(regionprops(cc,'Area'))'); %Areas of all cells
+    slicedata.BBoxes = cell2mat(struct2cell(regionprops(cc,'BoundingBox'))'); %Bounding boxes of all cells
     MinAx = cell2mat(struct2cell(regionprops(cc,'MinorAxisLength'))');
     MajAx = cell2mat(struct2cell(regionprops(cc,'MajorAxisLength'))');
-    celldata.WHRatio = MajAx / MinAx; %Width to height ratios of cells
-    display(num2str(b/total*100) + "% done");
-    all_cells{b} = celldata;
-    b = b + 1;
-end
-toc/60
-
-%%
-%---------------Percentage of scaffold occupied by cells - first version
-address_scaff = 'D:\ARTUR\RawData\Fib_Week2\Ch1_Stitched_Sections';% uigetdir('temp', 'Select folder where scaffold images are');
-address_cells = 'D:\ARTUR\Nuclei-Cell\5_Stitched\Week2_Nuclei\GroundTruth';% uigetdir('temp', 'Select folder where cell images are');
-a = dir([address_scaff '\*.tif']);
-a2 = dir([address_cells '\*.tif']);
-total = numel(a);
-pic = 1;
-for pic = 1:5   
-    imgscaff = imread(address_scaff + "/" + a(pic).name);
-    imgcells = imread(address_cells + "/" + a2(pic).name);
+    slicedata.WHRatios = MajAx ./ MinAx; %Width to height ratios of cells
     
-    totalscaff = sum(imgscaff>0,'all');
-    imgscaffbin = imgscaff > 0;
-    imgcellsbin = imgcells > 0;
-    sumcells = 0;
-    for m = 1:size(imgcells,1)
-        for n = 1:size(imgcells,2)
-            if(imgcellsbin(m,n) && imgscaffbin(m,n))
-                sumcells = sumcells + 1;
-            end
-        end
-    end
-    percentage(pic) = sumcells / totalscaff * 100
-    pic = pic + 1
+    % Calculate percentage of scaffold occupied by cells    
+    scaffold_image = imread(scaffold_imgs(1).folder + "\" + scaffold_imgs(slice).name);
+    scaffold_image = double(scaffold_image > 0);
+    totalscaff = sum(scaffold_image,'all');
+    slicedata.scaffperc = sum(cell_image + scaffold_image == 2,'all') / totalscaff * 100
+    
+    %Store data for current slice and continue
+    metric_data{slice} = slicedata;
 end
+display("Calculating metrics took " + num2str(toc/60) + " minutes");
+
+
+
 
 %% ------------ Average Scaffold Pore Size
 
