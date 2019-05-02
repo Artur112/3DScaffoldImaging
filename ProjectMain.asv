@@ -1,6 +1,7 @@
 %4th Year Biomedical Engineering Final Year Project, written by Artur
 %Jurgenson 2018-2019.
 
+clc; clear all; close all;
 
 %% Get address of folder where data is stored
 disp('Please select folder where the weekly scans are stored (ie folders that contain the Ch_x scans for each week');
@@ -90,18 +91,18 @@ weeknr = 1;
 slices_completed = 0;
 for week = week_folders'
     files = dir([strcat(week.folder,'\',week.name,'\','Ch1_Stitched_Sections') '\*.tif']);
-    mkdir(strcat(store_address,'\Scaffold_Binary\Week',num2str(weeknr)));
+    mkdir(strcat(store_address,'\Scaffolds\Week',num2str(weeknr)));
     slice = 1;
     for file = files'
         disp(slice);
         image = imread(file.folder + "\" + file.name);
         image = double(image > 0);
         if(slice<10)
-            imwrite(image,strcat(store_address,'\Scaffold_Binary\Week',num2str(weeknr),'\Slice_00', num2str(slice)+".png"));
+            imwrite(image,strcat(store_address,'\Scaffold_S\Week',num2str(weeknr),'\Slice_00', num2str(slice)+".png"));
         elseif(slice<100)
-            imwrite(image,strcat(store_address,'\Scaffold_Binary\Week',num2str(weeknr),'\Slice_0', num2str(slice)+".png"));
+            imwrite(image,strcat(store_address,'\Scaffold_Scans\Week',num2str(weeknr),'\Slice_0', num2str(slice)+".png"));
         else
-            imwrite(image,strcat(store_address,'\Scaffold_Binary\Week',num2str(weeknr),'\Slice_', num2str(slice)+".png"));
+            imwrite(image,strcat(store_address,'\Scaffold_Scans\Week',num2str(weeknr),'\Slice_', num2str(slice)+".png"));
         end
         slice = slice + 1;
         slices_completed = slices_completed + 1;
@@ -114,8 +115,8 @@ delete(bar);
 mkdir(strcat(store_address,'\Metrics'));
 for week = 1:numweeks
     disp(week);
-    cellfiles = dir([strcat(store_address,'\Segmented_Cells\Week',num2str(week)) '\*.png']);
-    scafffiles = dir([strcat(store_address,'\Scaffold_Binary\Week',num2str(week)) '\*.png']);
+    cellfiles = dir([strcat(store_address,'\Segmented_Scans\Week',num2str(week)) '\*.png']);
+    scafffiles = dir([strcat(store_address,'\Scaffold_Scans\Week',num2str(week)) '\*.png']);
     numslices = numel(cellfiles);
     metric_data = cell(1,numslices); %Pre allocating for speed
     
@@ -214,8 +215,6 @@ for week = 1:numweeks
     xlim([0 distance(end)]);
     ylabel('% of Scaffold covered');
 end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% ------------ Average Scaffold Pore Size
 
