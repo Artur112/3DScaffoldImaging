@@ -1,14 +1,13 @@
+numpics = 8;
+image = imread('C:\users\Artur\Desktop\Project_data_new\Cells\Week1\Slice_001.png');
+image = double(image>0);
+cc_img = bwconncomp(image);
+celldata.BBox = cell2mat(struct2cell(regionprops(cc_img,'BoundingBox'))');
 figure;
-numpics = 15;
-%celldata.BBox = celldata2.BBox{1,1}
-for n = 1:numpics
-    if(numpics<6)
-        subplot(1,5,n);
-    elseif(numpics<11)
-        subplot(2,5,n);
-    else
-        subplot(3,5,n);
-    end
+ii = 1;
+for n = randsample(length(celldata.BBox),numpics)'
+    
+    subplot(2,4,ii);
     
     %Take bounding box region only
     blob = image(floor(celldata.BBox(n,2)):ceil(celldata.BBox(n,2)) + celldata.BBox(n,4),floor(celldata.BBox(n,1)):ceil(celldata.BBox(n,1)) + celldata.BBox(n,3));
@@ -51,6 +50,7 @@ for n = 1:numpics
     plot(x,y,'g','LineWidth',2)
     hold off;
     title("W/H Ratio: " + num2str(majorax/minorax));
+    ii = ii + 1;
 end
 legend('MajorAxis','MinorAxis');
 sgtitle('Finding cellular Width to Height ratios');
