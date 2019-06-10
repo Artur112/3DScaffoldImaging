@@ -1,0 +1,42 @@
+%% Selecting random images to manually count cells from
+%Run until a good suitable image is found, then quit program and write down
+%details of the image section
+while true
+    week = randsample(3,1);
+    files = dir([strcat('C:\users\Artur\Desktop\Project_data_new\Cells\Week',num2str(week)) '\*.png']);
+    img_nr = randsample(10,1);
+    img = imread(strcat(files(1).folder,'\',files(img_nr).name));
+    y_pos = randsample(size(img,1)-5000,1);
+    x_pos = randsample(size(img,2)-5000,1);
+    img = img(y_pos:y_pos+1999,x_pos:x_pos+1999);
+    if(~isempty(img))
+    imshow(img>0);
+    % files = dir([strcat('D:\Artur\RawData\Fib_week',num2str(week),'\Ch2_Stitched_Sections') '\*.tif']);
+    pause;
+    end
+end
+
+%% After image sections have been seleted take those sections pad with 0s and store
+%Load in excel file first
+for ii = 1:10
+    disp(ii);
+    weeknr = counting(ii,1);
+    imgnr = counting(ii,2);
+    xpos = counting(ii,3);
+    ypos = counting(ii,4);
+    if(weeknr<10)
+        name = strcat('Stitched_Z00',num2str(imgnr),'.tif');
+    else
+        name = strcat('Stitched_Z0',num2str(imgnr),'.tif');
+    end
+    img = imread(strcat('D:\Artur\RawData\Fib_week',num2str(weeknr),'\Ch2_Stitched_Sections\',name));
+    img = img(ypos:ypos+1999,xpos:xpos+1999);
+    pad_img = zeros(2800,2800);
+    pad_img(401:2400, 401:2400) = img;
+    imwrite(img, "C:\Users\artur\Desktop\4thYear\Project\Images\To_Count\tocount" + num2str(ii) + ".tif");
+end
+    
+    
+    
+    
+    

@@ -5,7 +5,9 @@ cc_img = bwconncomp(image);
 celldata.BBox = cell2mat(struct2cell(regionprops(cc_img,'BoundingBox'))');
 figure;
 ii = 1;
-for n = randsample(length(celldata.BBox),numpics)'
+samples = [[306, 210, 635, 298,180,544],randsample(length(celldata.BBox),3)'];
+samples = samples(randperm(length(samples)));
+for n = samples
     
     subplot(2,4,ii);
     

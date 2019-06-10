@@ -378,3 +378,17 @@ for file = files'
     imwrite(img, strcat('C:\users\Artur\Desktop\cell\',file.name));
     a = a + 1;
 end
+
+%% Selecting random images to manually count cells from
+while true
+    week = randsample(3,1);
+    files = dir([strcat('C:\users\Artur\Desktop\Project_data_new\Cells\Week',num2str(week)) '\*.png']);
+    img = imread(strcat(files(1).folder,'\',files(randsample(10,1)).name));
+    y_pos = randsample(size(img,1)-1000,1);
+    x_pos = randsample(size(img,2)-1000,1);
+    img = img(y_pos:y_pos+1499,x_pos:x_pos+1499);
+    if
+    imshow(img>0);
+    % files = dir([strcat('D:\Artur\RawData\Fib_week',num2str(week),'\Ch2_Stitched_Sections') '\*.tif']);
+    pause;
+end
